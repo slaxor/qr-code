@@ -7,6 +7,13 @@ class QRCode
     @ecc_level = ECCLevel.new
     @version = Version.new(@payload.size, @ecc_level)
     @code =  blank_line * 3
+    @upper_left = PositionSquare.new
+    @upper_right = PositionSquare.new
+    @lower_left = PositionSquare.new
+    @alignment_squares = []
+    @version.number_of_alignment_squares.times do
+      @alignment_squares << AlignmentSquare.new
+    end
   end
 
   def generate
@@ -97,6 +104,11 @@ class QRCode
     end
 
     def determine
+      #TODO lookup from data and ecc-level
+      1
+    end
+
+    def number_of_alignment_squares
       #TODO lookup from data and ecc-level
       1
     end
