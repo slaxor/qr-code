@@ -1,0 +1,12 @@
+bin
+COPYING
+lib
+lib/qr-code.rb
+lib/tasks
+Manifest
+qr-code.gemspec
+Rakefile
+README
+setup.rb
+test
+test/qr-code-test.rb
