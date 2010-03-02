@@ -171,6 +171,9 @@ class QRCode
       1
     end
 
+    def next
+      ' ' # just a dummy "zero" yet
+    end
   end
 
   class Format < Snippet
@@ -205,7 +208,7 @@ class QRCode
     end
 
     def to_bitstream
-      @data.bytes.map {|b| b.to_s(2)}.join.tr('01', ' #').split('')
+      @data.bytes.map {|b| b.to_s(2).tr('01',' #')}.join
     end
 
     def next
