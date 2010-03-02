@@ -5,8 +5,8 @@ class QRCode
   def initialize(data)
     @payload = Payload.new(data)
     @ecc_level = ECCLevel.new
+    @format = Format.new
     @version = Version.new(@payload.size, @ecc_level)
-    @code =  blank_line * 3
     @upper_left = PositionSquare.new
     @upper_right = PositionSquare.new
     @lower_left = PositionSquare.new
@@ -14,19 +14,77 @@ class QRCode
     @version.number_of_alignment_squares.times do
       @alignment_squares << AlignmentSquare.new
     end
+    @code = []
   end
 
   def generate
     #position_square + blank_col + format_code + payload + version_code + blank_col + position_square
+    @code << blank_line
+    @code << blank_line
+    @code << blank_line
+    # lines 4 .. 10 do
+    @code << ' ' * 3
+    @code << @upper_left.next
+    @code << ' '
+    @code << @format.next
+    @code << @payload.next
+    @code << @version.next
+    @code << ' '
+    @code << @upper_right.next
+    @code << ' ' * 3
+    # end
+    #
+    # line 11 do
+      # @code << @upper_left.next
+      # @code << ' '
+      # @code << sync_pattern
+      # @code << ' '
+      # @code << @upper_right.next
+    # end
+    #
+    # lines 12 .. Version.module_size - 11 do
+      # @code << ' ' * 3
+      # 6.times do
+      #   @code << @payload.next
+      # end
+      # @code << vertical_sync_bit
+      # 01234.times do
+      #   @code << @payload.next
+      # end
+      # if dunno
+      #   @code << alignment_squares[012434].next
+      # end
+      # 01234.times do
+      #   @code << @payload.next
+      # end
+      # @code << ' ' * 3
+    # end
+    #
+    # Version.module_size - 10 do
+      # @code << ' ' * 3
+      # 6.times do
+      #   @code << @version.next
+      # end
+      # @code << vertical_sync_bit
+      # 01234.times do
+      #   @code << @payload.next
+      # end
+      # if dunno
+      #   @code << alignment_squares[012434].next
+      # end
+      # 01234.times do
+      #   @code << @payload.next
+      # end
+      # @code << ' ' * 3
+      # end
+      #
+    # end
+    #
     @code
   end
 
   def blank_line
-    ' ' * @version.to_module_size + "\n"
-  end
-
-  def to_bitstream
-    self.bytes.map {|b| b.to_s(2)}.join.split
+    ' ' * @version.module_size
   end
 
   def to_payload
@@ -95,7 +153,7 @@ class QRCode
     #                  H           10,208   3,057        1,852  1,273    784
     #
 
-    def to_module_size
+    def module_size
       @version * 4 + 17
     end
 
@@ -115,16 +173,18 @@ class QRCode
 
   end
 
-  class Format
+  class Format < Snippet
     # probably one of "Data bits" "Numeric" "Alfanumeric" "Binary" or "Kanji"
+    LINES = [ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' ]
   end
 
-  class ECCLevel
+  class ECCLevel < Snippet
     # Kapazität der verschiedenen Fehlerkorrektur-Levels
     # Level L 7% der Codewörter/Daten können wiederhergestellt werden.
     # Level M 15% der Codewörter/Daten können wiederhergestellt werden.
     # Level Q 25% der Codewörter/Daten können wiederhergestellt werden.
     # Level H 30% der Codewörter/Daten können wiederhergestellt werden.
+    LINES = [ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' ]
 
     attr_accessor :level
 
@@ -137,10 +197,19 @@ class QRCode
     attr_accessor :data
     def initialize(data)
       @data = data
+      @bits = data.bytes
     end
 
     def size
       @data.size * 8 #size in bits
+    end
+
+    def to_bitstream
+      @data.bytes.map {|b| b.to_s(2)}.join.tr('01', ' #').split('')
+    end
+
+    def next
+
     end
   end
 end
